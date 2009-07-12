@@ -46,17 +46,17 @@ The configuration Hash equals the Yaml config file:
 
 == Running the application on JRuby
 
-Expecting these JVM properties to be set:
+Expecting these default JVM properties:
 
-  # some defaults
   jruby.home = "/usr/local/lib/jruby"
   java.runtime.name = "Java(TM) SE Runtime Environment"
   java.runtime.version = "1.6.0_14-b08"
 
-  # custom properties
+And the following custom property:
+
   auth.service = "http://live.example.com"
 
-The configuration Hash was extended by the JVM properties:
+The configuration Hash extended by JVM properties:
 
   "auth" => {
     "user" => "client",
