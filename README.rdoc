@@ -1,9 +1,7 @@
 = Ambience
 
-Ruby on Rails configuration with JRuby spicing.
-
-Merges the content of a default Yaml config file with available JVM properties
-when running an application on JRuby.
+Ruby on Rails configuration with JRuby spicing. Merges the content of a default
+Yaml config file with available JVM properties when running an application on JRuby.
 
 == Install
 
