@@ -1,0 +1,13 @@
+defaults: &defaults
+  auth:
+    user: "test"
+    password: "test"
+
+development:
+  <<: *defaults
+
+test:
+  <<: *defaults
+
+production:
+  <<: *defaults
