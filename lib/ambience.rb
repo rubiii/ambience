@@ -30,7 +30,7 @@ class Ambience
       file ||= nil
     end
 
-    # Returns the ERB-interpreted content at the given +env+ from a given YAML
+    # Returns the ERB-interpreted content at the given +env+ from a given Yaml
     # +config+ String and returns a Hash containing the evaluated content.
     # Defaults to returning an empty Hash in case +config+ is nil.
     def setup_config(env, config)

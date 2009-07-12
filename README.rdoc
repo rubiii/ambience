@@ -1,1 +1,71 @@
 = Ambience
+
+Ruby on Rails configuration with JRuby spicing.
+
+Merges the content of a default Yaml config file with available JVM properties
+when running an application on JRuby.
+
+== Install
+
+  $ script/plugin install git://github.com/smacks/ambience.git
+
+== An example
+
+=== The Yaml configuration
+
+  defaults: &defaults
+    auth:
+      user: "client"
+      password: "secret"
+      service: "http://test.example.com"
+
+  development:
+    <<: *defaults
+
+  test:
+    <<: *defaults
+
+  production:
+    <<: *defaults
+
+=== Loading the configuration
+
+  # to be placed at the bottom of environment.rb
+  AppConfig = Ambience.new
+
+=== Running on MRI
+
+The configuration Hash from Ambience.new equals the Yaml config file:
+
+  "auth" => {
+    "user" => "client",
+    "password => "secret",
+    "service" => "http://test.example.com"
+  }
+
+=== Running on JRuby
+
+Expecting these JVM properties to be set:
+
+  # some defaults
+  jruby.home = "/usr/local/lib/jruby"
+  java.runtime.name = "Java(TM) SE Runtime Environment"
+  java.runtime.version = "1.6.0_14-b08"
+
+  # custom properties
+  auth.service = "http://live.example.com"
+
+The configuration Hash will be extended by the given JVM properties:
+
+  "auth" => {
+    "user" => "client",
+    "password => "secret",
+    "service" => "http://live.example.com"
+  },
+  "java" => {
+    "runtime" => {
+      "name" => "Java(TM) SE Runtime Environment",
+      "version" => "1.6.0_14-b08"
+    }
+  },
+  "jruby" => { "home" => "/usr/local/lib/jruby" }
