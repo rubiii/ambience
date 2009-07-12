@@ -11,7 +11,7 @@ with the available JVM properties when running the application on JRuby.
 
 == Yaml configuration
 
-  # config/ambience.yml
+Default configuration at config/ambience.yml
 
   defaults: &defaults
     auth:
@@ -30,8 +30,8 @@ with the available JVM properties when running the application on JRuby.
 
 == Loading the configuration
 
-  # place this at the bottom of your applications
-  # config/environment.rb file
+Place this at the bottom of your config/environment.rb file:
+
   AppConfig = Ambience.new
 
 == Running your application on MRI
