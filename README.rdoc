@@ -1,9 +1,9 @@
 = Ambience
 
-JVM-Parameters for your JRuby app.
+JRuby app configuration feat. Yaml and JVM-Parameters.
 
-Loads a default configuration file and merges it with all available
-JVM-Parameters when running the application on JRuby.
+Loads a default Yaml configuration file and merges it with all
+available JVM-Parameters when running an application on JRuby.
 
 == Install
 
