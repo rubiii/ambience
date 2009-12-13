@@ -2,8 +2,8 @@
 
 JRuby app configuration feat. Yaml and JVM-Parameters.
 
-Loads a default Yaml configuration file and merges it with all
-available JVM-Parameters when running an application on JRuby.
+Specify a default (development) configuration in a Yaml file and override
+its properties via JVM-Parameters for production.
 
 == Install
 
