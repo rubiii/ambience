@@ -1,0 +1,8 @@
+== 0.2.0 (2010-03-06)
+  * Complete rewrite. Removed Rails-specific defaults and returning the Ambience config
+    as a Hashie::Mash (http://github.com/intridea/hashie). Take a look at the new Readme
+    and Specs for examples.
+
+== 0.1.0 (2009-12-12)
+  * Initial release.
+

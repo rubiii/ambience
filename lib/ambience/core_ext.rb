@@ -1,23 +1,7 @@
 class Hash
 
-  # Returns a new Hash with all keys converted to Symbols.
-  def recursively_symbolize_keys
-    inject({}) do |hash, (key, value)|
-      hash[key.to_sym] = case value
-        when Hash then value.recursively_symbolize_keys
-        else value
-      end
-      hash
-    end
-  end
-
-  # Converts this Hash to a new Hash with all keys converted to Symbols.
-  def recursively_symbolize_keys!
-    replace recursively_symbolize_keys
-  end
-
-  # Returns a new hash with self and other_hash merged recursively.
-  # Implementation from ActiveSupport.
+  # Returns a new Hash with self and +other_hash+ merged recursively.
+  # Implementation from ActiveSupport::CoreExtensions::Hash::DeepMerge.
   def deep_merge(other_hash)
     merge(other_hash) do |key, oldval, newval|
       oldval = oldval.to_hash if oldval.respond_to? :to_hash
@@ -26,8 +10,8 @@ class Hash
     end
   end
 
-  # Returns a new hash with self and other_hash merged recursively. Modifies the receiver in place.
-  # Implementation from ActiveSupport.
+  # Returns a new Hash with self and +other_hash+ merged recursively. Modifies the receiver in place.
+  # Implementation from ActiveSupport::CoreExtensions::Hash::DeepMerge.
   def deep_merge!(other_hash)
     replace deep_merge(other_hash)
   end

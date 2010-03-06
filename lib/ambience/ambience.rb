@@ -1,78 +1,104 @@
-require "yaml" unless defined? YAML
-require "erb" unless defined? ERB
-
 # = Ambience
 #
-# JRuby on Rails app configuration feat. YAML and JVM properties. Lets you specify a default
-# configuration in a YAML file and overwrite its properties via JVM properties for production.
+# App configuration feat. YAML and JVM properties. Lets you specify a default configuration
+# in a YAML file and overwrite details via JVM properties for production.
+#
+# == How it works
+#
+# Given you created a YAML config like this one:
+#
+#   auth:
+#     address: http://example.com
+#     username: ferris
+#     password: test
+#
+# You create an Ambience config by passing in the path to your config file:
+#
+#   AppConfig = Ambience.new File.join(Rails.root, "config", "ambience.yml")
+#
+# Ambience will load and convert your config into a Hash:
+#
+#   { "auth" => { "address" => "http://example.com", "username" => "ferris", "password" => "test" } }
+#
+# Then it looks for any JVM properties (if your running JRuby)
+#
+#   auth.address = "http://live.example.com"
+#   auth.password = "topsecret"
+#
+# and deep merge them with your Hash:
+#
+#   { "auth" => { "address" => "http://live.example.com", "username" => "ferris", "password" => "topsecret" } }
+#
+# Finally, it returns the Hash as a {Hashie::Mash}[http://github.com/intridea/hashie] so you can
+# access values by specifying keys as Symbols or Strings or using method-like accessors:
+#
+#   AppConfig[:auth][:address]
+#   # => "http://live.example.com"
+#
+#   AppConfig["auth"]["username"]
+#   # => "http://live.example.com"
+#
+#   AppConfig.auth.password
+#   # => "topsecret"
 class Ambience
   class << self
 
-    # Returns a new config Hash for a given Rails app +environment+ from a given +config_file+.
+    # Returns a new Ambience config from a given YAML +config_file+ for an optional +env+.
     # Overwrites properties with any JVM properties (in case the application is running on JRuby).
-    def new(config_file = nil, environment = nil)
-      hash = parse_config load_config(config_file), environment
-      hash = merge_jvm_properties_with hash
+    def new(config_file, env = nil)
+      config_hash = parse_config load_config(config_file)
+      config_hash = config_hash[env.to_s] || config_hash[env.to_sym] if env
+      config_hash.deep_merge! jvm_property_hash
+      Hashie::Mash.new config_hash
     end
 
-    # Returns if the application's running on JRuby.
+    # Returns whether the current Ruby platfrom is JRuby.
     def jruby?
       RUBY_PLATFORM =~ /java/
     end
 
   private
 
-    # Loads the given +config_file+. Tries to load "ambience.yml" from the
-    # application's config folder in case no +config_file+ was given. Returns
-    # the content from the config file or nil in case no config file was found.
-      def load_config(config_file)
-      config_file ||= File.join(RAILS_ROOT, "config", "ambience.yml")
-      config = File.read config_file if File.exist? config_file
-      config || nil
+    # Loads a given +config_file+. Raises an ArgumentError in case the config could not be found.
+    def load_config(config_file)
+      raise ArgumentError, "Missing config: #{config_file}" unless File.exist? config_file
+      File.read config_file
     end
 
-    # Returns the ERB-interpreted content at the given +env+ from a given YAML
-    # +config+ String and returns a Hash containing the evaluated content.
-    # Defaults to returning an empty Hash in case +config+ is nil.
-    def parse_config(config, environment)
-      config_hash = YAML.load(ERB.new(config).result)
-      config_hash = config_hash[environment] if environment
-      config_hash || {}
+    # Returns the ERB-interpreted content from a given YAML +config+ String and returns a Hash
+    # containing the evaluated content. Defaults to returning an empty Hash.
+    def parse_config(config)
+      YAML.load ERB.new(config).result || {}
     end
 
-    # Expects the current config +hash+, iterates through the JVM properties,
-    # adds them to the given +hash+ and returns the merged result.
-    def merge_jvm_properties_with(hash)
-      return hash unless jruby?
-
-      jvm_properties.each do |key, value|
-        param = hash_from_property key, value
-        hash = deep_merge hash, param if hash
+    # Returns a Hash containing any JVM properties.
+    def jvm_property_hash
+      jvm_properties.inject({}) do |hash, (key, value)|
+        hash.deep_merge hash_from_property(key, value)
       end
-      hash
     end
 
-    # Expects +key+ and +value+ from a JVM property and returns a Hash that
-    # complies to the YAML format.
-    def hash_from_property(key, value)
-      hash, split = {}, key.split(".")
-      (split.size-1).downto(0) do |i|
-        v = i == (split.size-1) ? value : hash
-        hash = { split[i] => v }
-      end
-      hash
+    # Returns a Hash generated from a JVM +property+ and its +value+.
+    #
+    # ==== Example:
+    #
+    #   hash_from_property "webservice.auth.address", "http://auth.example.com"
+    #   # => { "webservice" => { "auth" => { "address" => "http://auth.example.com" } } }
+    def hash_from_property(property, value)
+      property.split(".").reverse.inject(value) { |value, item| { item => value } }
     end
 
     # Returns the JVM properties.
     def jvm_properties
-      JavaLang::System.get_properties
+      jruby? ? JavaLang::System.get_properties : {}
     end
 
   end
-end
 
-if Ambience.jruby?
-  module JavaLang
-    include_package "java.lang"
+  if jruby?
+    module JavaLang
+      include_package "java.lang"
+    end
   end
+
 end

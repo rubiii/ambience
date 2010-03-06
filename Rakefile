@@ -1,42 +1,31 @@
-require "rubygems"
 require "rake"
-require "rake/testtask"
-require "rake/rdoctask"
+require "spec/rake/spectask"
+require "spec/rake/verify_rcov"
 
-task :default => :test
+task :default => :spec
 
-Rake::TestTask.new(:test) do |t|
-  t.libs << "lib"
-  t.libs << "test"
-  t.pattern = "test/**/*_test.rb"
-  t.verbose = true
+Spec::Rake::SpecTask.new do |spec|
+  spec.spec_files = FileList["spec/**/*_spec.rb"]
+  spec.spec_opts << "--color"
+  spec.libs += ["lib", "spec"]
+  spec.rcov = true
 end
 
-Rake::RDocTask.new do |rdoc|
-  rdoc.title = "Ambience"
-  rdoc.rdoc_dir = "rdoc"
-  rdoc.rdoc_files.include("lib/**/*.rb")
-  rdoc.options = ["--line-numbers", "--inline-source"]
+RCov::VerifyTask.new(:spec_verify => :spec) do |verify|
+  verify.threshold = 100.0
+  verify.index_html = "rcov/index.html"
 end
 
 begin
-  require "jeweler"
-  Jeweler::Tasks.new do |spec|
-    spec.name = "ambience"
-    spec.author = "Daniel Harrington"
-    spec.email = "me@rubiii.com"
-    spec.homepage = "http://github.com/rubiii/ambience"
-    spec.summary = "JVM-Parameters for your JRuby app"
-    spec.description = spec.summary
+  require "hanna/rdoctask"
 
-    spec.files = FileList["[A-Z]*", "init.rb", "{lib,test}/**/*.{rb,yml}"]
-
-    spec.rdoc_options += [
-      "--title", "Ambience",
-      "--line-numbers",
-      "--inline-source"
-    ]
+  Rake::RDocTask.new do |rdoc|
+    rdoc.title = "Ambience - App configuration feat. YAML and JVM properties"
+    rdoc.rdoc_dir = "doc"
+    rdoc.rdoc_files.include("**/*.rdoc").include("lib/**/*.rb")
+    rdoc.options << "--line-numbers"
+    rdoc.options << "--webcvs=http://github.com/rubiii/ambience/tree/master/"
   end
 rescue LoadError
-  puts "Jeweler missing. Install with: gem install jeweler"
+  puts "'gem install hanna' for documentation"
 end

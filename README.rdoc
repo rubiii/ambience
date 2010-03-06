@@ -1,78 +1,45 @@
 = Ambience
 
-JRuby app configuration feat. Yaml and JVM-Parameters.
+App configuration feat. YAML and JVM properties. Lets you specify a default configuration in a YAML file and overwrite details via JVM properties for production.
 
-Specify a default (development) configuration in a Yaml file and override
-its properties via JVM-Parameters for production.
-
-== Install
-
-As a gem:
+== Installation
 
   $ gem install ambience
 
-As a Rails plugin:
+== How it works
 
-  $ script/plugin install git://github.com/rubiii/ambience.git
+Given you created a YAML config like this one:
 
-== Default configuration
+  auth:
+    address: http://example.com
+    username: ferris
+    password: test
 
-Default configuration at config/ambience.yml
+You create an Ambience config by passing in the path to your config file:
 
-  defaults: &defaults
-    auth:
-      user: "client"
-      password: "secret"
-      service: "http://test.example.com"
+  AppConfig = Ambience.new File.join(Rails.root, "config", "ambience.yml")
 
-  development:
-    <<: *defaults
+Ambience will load and convert your config into a Hash:
 
-  test:
-    <<: *defaults
+  { "auth" => { "address" => "http://example.com", "username" => "ferris", "password" => "test" } }
 
-  production:
-    <<: *defaults
+Then it looks for any JVM properties (if your running JRuby)
 
-== Loading the configuration
+  auth.address = "http://live.example.com"
+  auth.password = "topsecret"
 
-Place this at the bottom of your config/environment.rb file:
+and deep merge them with your Hash:
 
-  AppConfig = Ambience.new
+  { "auth" => { "address" => "http://live.example.com", "username" => "ferris", "password" => "topsecret" } }
 
-== Running your application on MRI
+Finally, it returns the Hash as a {Hashie::Mash}[http://github.com/intridea/hashie] so you can access values by specifying keys as Symbols or Strings or using method-like accessors:
 
-The configuration Hash equals the default configuration file:
+  AppConfig[:auth][:address]
+  # => "http://live.example.com"
 
-  "auth" => {
-    "user" => "client",
-    "password => "secret",
-    "service" => "http://test.example.com"
-  }
+  AppConfig["auth"]["username"]
+  # => "http://live.example.com"
 
-== Running the application on JRuby
+  AppConfig.auth.password
+  # => "topsecret"
 
-Expecting these default JVM properties:
-
-  jruby.home = "/usr/local/lib/jruby"
-  java.runtime.name = "Java(TM) SE Runtime Environment"
-  java.runtime.version = "1.6.0_14-b08"
-
-And the following custom property:
-
-  auth.service = "http://live.example.com"
-
-The default configuration will be extended by JVM properties:
-
-  "auth" => {
-    "user" => "client",
-    "password => "secret",
-    "service" => "http://live.example.com"
-  },
-  "java" => {
-    "runtime" => {
-      "name" => "Java(TM) SE Runtime Environment",
-      "version" => "1.6.0_14-b08"
-    }
-  },
-  "jruby" => { "home" => "/usr/local/lib/jruby" }

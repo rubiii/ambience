@@ -1,0 +1,5 @@
+auth:
+  address: http://example.com
+  username: ferris
+  password: test
+

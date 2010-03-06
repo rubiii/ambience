@@ -1,0 +1,11 @@
+:development: &development
+  :auth:
+    :username: "ferris"
+    :password: test
+
+:test:
+  <<: *development
+
+:production:
+  <<: *development
+
