@@ -2,8 +2,8 @@ require "rake"
 
 Gem::Specification.new do |s|
   s.name = "ambience"
-  s.version = "0.2.0"
-  s.date = "2010-03-06"
+  s.version = "0.3.0"
+  s.date = "2010-05-13"
 
   s.authors = "Daniel Harrington"
   s.email = "me@rubiii.com"
