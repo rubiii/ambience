@@ -1,3 +1,6 @@
+== 0.3.1 (2010-05-27)
+  * Ambience now requires "java" (for JRuby support) if it's available.
+
 == 0.3.0 (2010-05-13)
   * Ambience now operates on the instance level. So after setting up a new Ambience config
     like before:
