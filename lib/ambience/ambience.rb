@@ -1,3 +1,8 @@
+begin
+  require "java"
+rescue LoadError
+end
+
 # = Ambience
 #
 # App configuration feat. YAML and JVM properties. Lets you specify a default configuration
