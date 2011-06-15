@@ -1,14 +1,13 @@
 development: &development
   auth:
     username: "ferris"
-    password: test
+    password: "test"
 
 test:
   <<: *development
 
 production:
-  <<: *development
   auth:
     username: "ferris"
-    password: topsecret
+    password: "topsecret"
 

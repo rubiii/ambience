@@ -1,5 +1,5 @@
 auth:
-  address: http://example.com
-  username: ferris
-  password: test
+  address: "http://example.com"
+  username: "ferris"
+  password: "test"
 

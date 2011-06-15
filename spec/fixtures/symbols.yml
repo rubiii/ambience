@@ -1,7 +1,7 @@
 :development: &development
   :auth:
     :username: "ferris"
-    :password: test
+    :password: "test"
 
 :test:
   <<: *development
