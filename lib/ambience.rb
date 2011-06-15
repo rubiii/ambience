@@ -1,7 +1,16 @@
-require "yaml" unless defined? YAML
-require "erb" unless defined? ERB
+require "ambience/config"
+require "ambience/version"
 
-require "hashie"
+require "ambience/railtie" if defined? Rails
 
-require "ambience/core_ext"
-require "ambience/ambience"
+module Ambience
+
+  def self.create(config_file, env = nil)
+    Config.new(config_file, env)
+  end
+
+  def self.jruby?
+    RUBY_PLATFORM =~ /java/
+  end
+
+end

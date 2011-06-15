@@ -1,24 +1,25 @@
-require "rake"
+$:.push File.expand_path("../lib", __FILE__)
+require "ambience/version"
 
 Gem::Specification.new do |s|
-  s.name = "ambience"
-  s.version = "0.3.1"
-  s.date = "2010-05-27"
+  s.name        = "ambience"
+  s.version     = Ambience::VERSION
+  s.author      = "Daniel Harrington"
+  s.email       = "me@rubiii.com"
+  s.homepage    = "http://github.com/rubiii/#{s.name}"
+  s.summary     = %q{App configuration feat. YAML and JVM properties}
+  s.description = s.summary
 
-  s.authors = "Daniel Harrington"
-  s.email = "me@rubiii.com"
-  s.homepage = "http://github.com/rubiii/ambience"
-  s.summary = "App configuration feat. YAML and JVM properties"
-
-  s.files = FileList["[A-Z]*", "{lib,spec}/**/*.{rb,yml}"]
-  s.test_files = FileList["spec/**/*.rb"]
-
-  s.extra_rdoc_files = ["README.rdoc"]
-  s.rdoc_options  = ["--charset=UTF-8", "--line-numbers", "--inline-source"]
-  s.rdoc_options += ["--title", "Ambience - App configuration feat. YAML and JVM properties"]
+  s.rubyforge_project = s.name
 
   s.add_dependency "hashie", ">= 0.2.0"
 
-  s.add_development_dependency "rspec", ">= 1.2.8"
-  s.add_development_dependency "mocha", ">= 0.9.7"
+  s.add_development_dependency "rspec", "~> 2.6.0"
+  s.add_development_dependency "mocha", "~> 0.9.12"
+  s.add_development_dependency "autotest"
+
+  s.files         = `git ls-files`.split("\n")
+  s.test_files    = `git ls-files -- {test,spec,features}/*`.split("\n")
+  s.executables   = `git ls-files -- bin/*`.split("\n").map{ |f| File.basename(f) }
+  s.require_paths = ["lib"]
 end

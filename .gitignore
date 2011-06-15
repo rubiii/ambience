@@ -1,5 +1,9 @@
-.*
-nbproject
+.DS_Store
+.yardoc
 doc
 coverage
-
+tmp
+*~
+*.gem
+.bundle
+Gemfile.lock
