@@ -1,3 +1,9 @@
+== 2.0.0 (2011-11-04)
+
+  * Replaced the automatic loading of a user-local ambience.yml with an option to
+    load an app-specific config by providing a path to the additonal config via
+    an AMBIENCE_CONFIG environment variable.
+
 == 1.0.0 (2011-06-15)
 
   * Cleaned up the project's setup.

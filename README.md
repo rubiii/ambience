@@ -39,8 +39,9 @@ Ambience loads your config and converts it into a Hash:
 { "auth" => { "address" => "http://example.com", "username" => "ferris", "password" => "test" } }
 ```
 
-Afterwards it tries to merge these settings with local ones specified in an `Ambience.local_config` file.  
-If you're using JRuby, Ambience will merge all JVM properties with the config Hash:
+Afterwards it tries to merge these settings with app-specific setting stored in a file which path is
+provided through the AMBIENCE_CONFIG environment variable. Also, if you're using JRuby, Ambience will
+merge all JVM properties with the config Hash:
 
 ``` ruby
 auth.address = "http://live.example.com"
