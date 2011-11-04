@@ -1,0 +1,4 @@
+auth:
+  address: "http://live.example.com"
+  username: "ferris"
+  password: "test"

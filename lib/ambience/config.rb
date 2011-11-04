@@ -17,26 +17,28 @@ module Ambience
   # in a YAML file and overwrite details via local settings and JVM properties for production.
   class Config
 
-    # Sets the path to a local ambience config file.
-    def self.local_config=(local_config)
-      @@local_config = local_config
+    class << self
+
+      def env_config
+        @env_config ||= "AMBIENCE_CONFIG"
+      end
+
+      attr_writer :env_config
+
     end
 
-    # Returns the path to a local ambience config file for specifying user-specific
-    # settings that don't belong into the application config file.
-    def self.local_config
-      @@local_config ||= File.join ENV["HOME"].to_s, ".ambience", "ambience.yml"
+    def initialize(base_config, env = nil)
+      self.base_config = base_config
+      self.env = env
     end
 
-    def initialize(config_file, env = nil)
-      @config_file, @env = config_file, env
-    end
+    attr_accessor :base_config, :env
 
     # Returns the Ambience config as a Hash.
     def to_hash
-      config = load_config @config_file
-      config = config.deep_merge local_config
-      config.deep_merge jvm_config
+      config = load_base_config
+      config = config.deep_merge(load_env_config)
+      config.deep_merge(load_jvm_config)
     end
 
     # Returns the Ambience config as a Hashie::Mash.
@@ -46,28 +48,30 @@ module Ambience
 
   private
 
+    def load_base_config
+      load_config base_config
+    end
+
+    def load_env_config
+      config = ENV[self.class.env_config]
+      config ? load_config(config) : {}
+    end
+
     def load_config(config_file)
-      raise ArgumentError, "Missing config: #{config_file}" unless File.exist? config_file
+      raise ArgumentError, "Missing config file: #{config_file}" unless File.exist?(config_file)
 
       config = File.read config_file
       config = YAML.load ERB.new(config).result || {}
-      config = config[@env.to_s] || config[@env.to_sym] if @env
+      config = config[env.to_s] || config[env.to_sym] if env
       config
     end
 
-    # Returns a Hash containing any local settings from the +@@local_config+.
-    def local_config
-      File.exist?(self.class.local_config) ? load_config(self.class.local_config) : {}
-    end
-
-    ## Returns a Hash containing any JVM properties.
-    def jvm_config
+    def load_jvm_config
       jvm_properties.inject({}) do |hash, (key, value)|
         hash.deep_merge hash_from_property(key, value)
       end
     end
 
-    # Returns the JVM properties.
     def jvm_properties
       Ambience.jruby? ? java.lang.System.get_properties : {}
     end

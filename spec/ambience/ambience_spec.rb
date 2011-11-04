@@ -36,11 +36,12 @@ describe Ambience do
   end
 
   it "raises an ArgumentError when the given config file could not be found" do
-    lambda { Ambience.create("missing_config.yml").to_hash }.should raise_error(ArgumentError)
+    expect { Ambience.create("missing_config.yml").to_hash }.to raise_error(ArgumentError)
   end
 
   context "when using JRuby" do
     before do
+      Ambience.stubs(:jruby?).returns(true)
       Ambience::Config.send(:define_method, :java) { JavaMock }
     end
 
@@ -49,17 +50,21 @@ describe Ambience do
     end
 
     it "merges the config with any JVM properties" do
-      Ambience.stubs(:jruby?).returns(true)
-      Ambience::Config.any_instance.stubs(:jvm_properties).returns(
-        "auth.address" => "http://live.example.com",
-        "auth.password" => "topsecret"
-      )
       config = Ambience.create(config_file(:basic)).to_mash
 
       config.should be_a(Hashie::Mash)
       config.auth.username.should == "ferris"
       config[:auth][:address].should == "http://live.example.com"
       config["auth"]["password"].should == "topsecret"
+    end
+  end
+
+  context "with an env config file" do
+    it "merges the config with the env config" do
+      ENV["AMBIENCE_CONFIG"] = config_file(:env_config)
+      config = Ambience.create(config_file(:basic)).to_mash
+
+      config.auth.address.should == "http://live.example.com"
     end
   end
 
